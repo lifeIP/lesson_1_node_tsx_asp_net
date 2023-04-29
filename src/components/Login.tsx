@@ -7,8 +7,41 @@ import {
 } from "@mui/material";
 import React from "react";
 import Center from "./Center";
+import useForm from "../hooks/useForm";
+
+const getFreshModel = () => ({
+  name: "",
+  email: "",
+});
 
 export default function Login() {
+  const { values, setValues, errors, setErrors, handleInputChange } =
+    useForm(getFreshModel);
+
+  const login = (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    if (validate()) console.log(values);
+  };
+
+  const validate = () => {
+    let temp = {
+      email: "",
+      name: "",
+    };
+    temp.email =
+      /\S+@\S+\.\S+/.test(values.email) &&
+      !(
+        /\S+ \S+@\S+\.+\S+/.test(values.email) ||
+        /\S+@\S+\.+\S+ \S+/.test(values.email) ||
+        / \S+\S+@\S+\.+\S+/.test(values.email)
+      )
+        ? ""
+        : "Email is not valid";
+    temp.name = values.name != "" ? "" : "This field is required.";
+    setErrors(temp);
+    return Object.values(temp).every((x) => x == "");
+  };
+
   return (
     <Center>
       <Card
@@ -31,38 +64,46 @@ export default function Login() {
           >
             Представьтесь
           </Typography>
-          <TextField
-            sx={{
-              justifyContent: "center",
-              margin: "10px 10px 5px 10px",
-              width: "90%",
-            }}
-            label="Email"
-            name="email"
-            variant="outlined"
-          />
-          <TextField
-            sx={{
-              margin: "5px 10px 10px 10px",
-              width: "90%",
-            }}
-            label="Name"
-            name="name"
-            variant="outlined"
-          />
-          <Button
-            sx={{
-              marginTop: "5px",
-              alignItems: "center",
-              justifyContent: "center",
-              width: "32%",
-            }}
-            type="submit"
-            variant="outlined"
-            size="large"
-          >
-            Поехали
-          </Button>
+          <form noValidate onSubmit={login}>
+            <TextField
+              sx={{
+                justifyContent: "center",
+                margin: "10px 10px 5px 10px",
+                width: "90%",
+              }}
+              label="Email"
+              name="email"
+              value={values.email}
+              onChange={handleInputChange}
+              variant="outlined"
+              {...(errors.email && { errors: true, helperText: errors.email })}
+            />
+            <TextField
+              sx={{
+                margin: "5px 10px 10px 10px",
+                width: "90%",
+              }}
+              label="Name"
+              name="name"
+              value={values.name}
+              onChange={handleInputChange}
+              variant="outlined"
+              {...(errors.name && { errors: true, helperText: errors.name })}
+            />
+            <Button
+              sx={{
+                marginTop: "5px",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "32%",
+              }}
+              type="submit"
+              variant="outlined"
+              size="large"
+            >
+              Поехали
+            </Button>
+          </form>
         </CardContent>
       </Card>
     </Center>
